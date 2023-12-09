@@ -23,7 +23,7 @@ dp = Dispatcher(bot)
 dialog_history = {}
 
 
-@dp.message_handler(content_types= types.ContentType.VOICE)
+@dp.message_handler(content_types=types.ContentType.VOICE)
 async def handle_message(message: types.Message):
     global dialog_history
     file_voice = await bot.get_file(message.voice.file_id)
@@ -35,12 +35,10 @@ async def handle_message(message: types.Message):
     user_dialog_history.append(convert_text)
     full_dialog = '\n'.join(user_dialog_history)
     chat = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a bot"},
-            {"role": "user", "content": full_dialog}
-        ]
-    )
+        model="text-davinci-003",
+        messages=[{"role": "system", "content": "You are a helpful assistant."},
+                                                        {"role": "user",
+                                                         "content": full_dialog}])
     user_dialog_history.append(chat.choices[0].message.content)
     dialog_history[user_id] = user_dialog_history
     reply = chat.choices[0].message.content
