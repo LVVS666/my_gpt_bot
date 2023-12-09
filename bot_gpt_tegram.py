@@ -33,16 +33,16 @@ async def handle_message(message: types.Message):
     user_id = message.from_user.id
     user_dialog_history = dialog_history.get(user_id, [])
     user_dialog_history.append(convert_text)
+    await message.answer(f'Сообщение:{convert_text}')
     full_dialog = '\n'.join(user_dialog_history)
     chat = openai.ChatCompletion.create(
-        model="text-davinci-003",
+        model="gpt-3.5-turbo",
         messages=[{"role": "system", "content": "You are a helpful assistant."},
                                                         {"role": "user",
                                                          "content": full_dialog}])
     user_dialog_history.append(chat.choices[0].message.content)
     dialog_history[user_id] = user_dialog_history
-    reply = chat.choices[0].message.content
-    await message.reply(reply)
+    await message.answer(chat.choices[0].message.content, parse_mode="markdown")
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
