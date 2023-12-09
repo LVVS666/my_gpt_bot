@@ -3,7 +3,6 @@ import os
 import openai
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
-from aiogram.types import ParseMode
 from aiogram.utils import executor
 from dotenv import load_dotenv
 import logging
@@ -30,12 +29,11 @@ async def handle_message(message: types.Message):
     file_voice = await bot.get_file(message.voice.file_id)
     file_path = file_voice.file_path
     download_file = await bot.download_file(file_path)
-    convert_text = convert_audio_in_text.convert_text(download_file)
+    convert_text = await convert_audio_in_text.convert_text(download_file)
     user_id = message.from_user.id
     user_dialog_history = dialog_history.get(user_id, [])
     user_dialog_history.append(convert_text)
     full_dialog = '\n'.join(user_dialog_history)
-    logging.info(f'{message.from_user}: {message.text}')
     chat = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -46,8 +44,6 @@ async def handle_message(message: types.Message):
     user_dialog_history.append(chat.choices[0].message.content)
     dialog_history[user_id] = user_dialog_history
     reply = chat.choices[0].message.content
-    logging.info(f'{reply}')
-
     await message.reply(reply)
 
 if __name__ == '__main__':
