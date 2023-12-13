@@ -15,7 +15,6 @@ async def convert_text(audio_file):
             audio_data = recognizer.record(source)
             try:
                 text = recognizer.recognize_google(audio_data, language='ru-Ru')  # Можете выбрать другой recognizer
-                print("Распознанный текст из голосового сообщения:", text)
             except sr.UnknownValueError:
                 print("Речь не распознана")
             except sr.RequestError as e:
