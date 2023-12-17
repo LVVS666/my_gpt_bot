@@ -29,6 +29,32 @@ def trim_history(history, max_length=4096):
         current_length -= len(removed_message["content"])
     return history
 
+@dp.message_handler()
+async def handle_message_other(message: types.Message):
+    #Берем текст из сообщения
+    convert_text = message.text
+    user_id = message.from_user.id
+    user_input = convert_text
+    # Проверка наличия пользователя в диалоге
+    if user_id not in conversation_history:
+        conversation_history[user_id] = []
+    # Добавления сообщения пользователя в диалог
+    conversation_history[user_id].append({"role": "user", "content": user_input})
+    conversation_history[user_id] = trim_history(conversation_history[user_id])
+    chat_history = conversation_history[user_id]
+    # Создание gpt запроса
+    response = await g4f.ChatCompletion.create_async(
+        model=g4f.models.default,
+        messages=chat_history,
+        provider=g4f.Provider.GeekGpt,
+    )
+    chat_gpt_response = response
+    # Добавления ответа в историю диалога
+    conversation_history[user_id].append({"role": "assistant", "content": chat_gpt_response})
+    length = sum(len(message["content"]) for message in conversation_history[user_id])
+    await message.answer(chat_gpt_response)
+
+
 @dp.message_handler(content_types=types.ContentType.VOICE)
 async def handle_message(message: types.Message):
     #Обработка голосового и представление его в виде текста.
