@@ -25,7 +25,7 @@ dp = Dispatcher(bot)
 conversation_history = {}
 
 keyboard = types.ReplyKeyboardMarkup()
-button_clear = types.KeyboardButton(text='Сбросить историюю')
+button_clear = types.KeyboardButton(text='/clear')
 keyboard.add(button_clear)
 
 def trim_history(history, max_length=4096):
@@ -40,12 +40,12 @@ def trim_history(history, max_length=4096):
 async def start(message: types.Message):
     await message.answer('Отправьте сообщение, чтобы начать диалог с GPT')
 
-@dp.message_handler(Text(equals="Сбросить историю."))
+@dp.message_handler(commands='clear')
 async def process_clear_command(message: types.Message):
     user_id = message.from_user.id
     conversation_history[user_id] = []
     await message.reply("История диалога очищена.")
-    await start()
+    await message.answer('Отправьте сообщение, чтобы начать новый диалог с GPT')
 
 @dp.message_handler()
 async def handle_message_other(message: types.Message):
