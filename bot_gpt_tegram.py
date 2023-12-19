@@ -27,6 +27,7 @@ keyboard = types.ReplyKeyboardMarkup()
 button_clear = types.KeyboardButton(text='/clear')
 keyboard.add(button_clear)
 
+
 def trim_history(history, max_length=4096):
     current_length = sum(len(message["content"]) for message in history)
     while history and current_length > max_length:
