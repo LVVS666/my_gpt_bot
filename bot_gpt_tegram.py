@@ -22,12 +22,28 @@ bot = Bot(os.getenv('TOKEN_BOT'))
 dp = Dispatcher(bot)
 conversation_history = {}
 
+keyboard = types.ReplyKeyboardMarkup()
+button_clear = types.KeyboardButton(text='Сбросить историюю')
+keyboard.add(button_clear)
+
 def trim_history(history, max_length=4096):
     current_length = sum(len(message["content"]) for message in history)
     while history and current_length > max_length:
         removed_message = history.pop(0)
         current_length -= len(removed_message["content"])
     return history
+
+
+@dp.message_handler(commands='start')
+async def start(message: types.Message):
+    await message.answer('Отправьте сообщение, чтобы начать диалог с GPT')
+
+@dp.message_handler(lambda message: message.text == "Сбросить историю.")
+async def process_clear_command(message: types.Message):
+    user_id = message.from_user.id
+    conversation_history[user_id] = []
+    await message.reply("История диалога очищена.")
+    await start()
 
 @dp.message_handler()
 async def handle_message_other(message: types.Message):
@@ -52,7 +68,7 @@ async def handle_message_other(message: types.Message):
     # Добавления ответа в историю диалога
     conversation_history[user_id].append({"role": "assistant", "content": chat_gpt_response})
     length = sum(len(message["content"]) for message in conversation_history[user_id])
-    await message.answer(chat_gpt_response)
+    await message.answer(chat_gpt_response, reply_markup=keyboard)
 
 
 @dp.message_handler(content_types=types.ContentType.VOICE)
@@ -81,7 +97,7 @@ async def handle_message(message: types.Message):
     #Добавления ответа в историю диалога
     conversation_history[user_id].append({"role": "assistant", "content": chat_gpt_response})
     length = sum(len(message["content"]) for message in conversation_history[user_id])
-    await message.answer(chat_gpt_response)
+    await message.answer(chat_gpt_response, reply_markup=keyboard)
 
 
 if __name__ == '__main__':
