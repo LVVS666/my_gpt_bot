@@ -19,7 +19,6 @@ logging.basicConfig(level=logging.INFO,
 load_dotenv()
 
 
-
 bot = Bot(os.getenv('TOKEN_BOT'))
 dp = Dispatcher(bot)
 conversation_history = {}
@@ -39,6 +38,7 @@ def trim_history(history, max_length=4096):
 @dp.message_handler(commands='start')
 async def start(message: types.Message):
     await message.answer('Отправьте сообщение, чтобы начать диалог с GPT')
+
 
 @dp.message_handler(commands='clear')
 async def process_clear_command(message: types.Message):
