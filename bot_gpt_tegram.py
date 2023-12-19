@@ -7,6 +7,8 @@ from aiogram.utils import executor
 from dotenv import load_dotenv
 import logging
 
+from aiogram.dispatcher.filters import Text
+
 
 import convert_audio_in_text
 
@@ -38,7 +40,7 @@ def trim_history(history, max_length=4096):
 async def start(message: types.Message):
     await message.answer('Отправьте сообщение, чтобы начать диалог с GPT')
 
-@dp.message_handler(lambda message: message.text == "Сбросить историю.")
+@dp.message_handler(Text(equals="Сбросить историю."))
 async def process_clear_command(message: types.Message):
     user_id = message.from_user.id
     conversation_history[user_id] = []
